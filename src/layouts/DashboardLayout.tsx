@@ -9,12 +9,22 @@ export default function DashboardLayout() {
 
   // Determine Page Title based on URL
   const getPageTitle = () => {
-    if (location.pathname.includes('orders')) return 'Orders';
-    return 'Inventory';
+    const path = location.pathname;
+
+    if (path.includes('/dashboard/admin/')) return 'Platform';
+    if (path.includes('/dashboard/ta/')) return 'Tenant';
+    if (path.includes('/dashboard/wm/tasks')) return 'Tasks';
+    if (path.includes('/dashboard/wm/')) return 'Warehouse';
+    if (path.includes('/dashboard/wo/')) return 'My Work';
+    if (path.includes('/dashboard/merchant/')) return 'Merchant';
+    if (path.includes('/dashboard/settings')) return 'Settings';
+    if (path.includes('/dashboard/orders')) return 'Orders';
+    if (path.includes('/dashboard/inventory')) return 'Inventory';
+    return 'Dashboard';
   };
 
   return (
-    <div className="flex h-screen bg-[#F8F9FA] font-sans text-slate-800 overflow-hidden">
+    <div className="flex h-screen bg-slate-50 text-slate-800 overflow-hidden">
       {/* Sidebar Component */}
       <Sidebar isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
 

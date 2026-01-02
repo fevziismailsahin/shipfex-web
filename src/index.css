@@ -3,5 +3,110 @@
 @tailwind utilities;
 
 body {
-  background-color: #f3f4f6;
+  margin: 0;
+  @apply bg-slate-50 text-slate-900 antialiased;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Utility helpers */
+.card {
+  @apply bg-white border border-slate-200 rounded-2xl shadow-sm;
+}
+
+.section-title {
+  @apply text-sm font-semibold text-slate-500 uppercase tracking-[0.25em];
+}
+
+/* UI primitives (shared, composable Tailwind component classes) */
+.sf-btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition-colors;
+}
+
+.sf-btn-primary {
+  @apply bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700 hover:border-indigo-700 shadow-sm;
+}
+
+.sf-btn-secondary {
+  @apply bg-white text-slate-700 border-slate-300 hover:bg-slate-50 shadow-sm;
+}
+
+.sf-btn-soft {
+  @apply bg-indigo-50 text-indigo-700 border-indigo-100 hover:bg-indigo-100;
+}
+
+.sf-btn-success-soft {
+  @apply bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100;
+}
+
+.sf-btn-danger {
+  @apply bg-rose-600 text-white border-rose-600 hover:bg-rose-700 hover:border-rose-700 shadow-sm;
+}
+
+.sf-icon-btn-danger {
+  @apply text-slate-400 hover:text-rose-600 p-2 rounded-xl hover:bg-rose-50 transition-colors;
+}
+
+.sf-input {
+  @apply w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none;
+}
+
+.sf-label {
+  @apply text-xs font-bold text-slate-500 uppercase tracking-wider;
+}
+
+.sf-input-lg {
+  @apply py-3;
+}
+
+.sf-select {
+  @apply w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-sm shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none;
+}
+
+.sf-table {
+  @apply w-full text-left border-collapse;
+}
+
+.sf-table-wrap {
+  @apply overflow-x-auto;
+}
+
+.sf-th {
+  @apply px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider;
+}
+
+.sf-td {
+  @apply px-6 py-4;
+}
+
+.sf-badge {
+  @apply inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold;
+}
+
+.sf-badge-indigo {
+  @apply bg-indigo-100 text-indigo-800;
+}
+
+.sf-modal-backdrop {
+  @apply fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4;
+}
+
+.sf-modal {
+  @apply bg-white p-6 sm:p-8 rounded-2xl w-full max-w-md shadow-2xl relative;
+}
+
+.sf-alert {
+  @apply rounded-xl border px-4 py-3 text-sm font-medium;
+}
+
+.sf-alert-error {
+  @apply bg-rose-50 border-rose-200 text-rose-800;
+}
+
+.sf-alert-success {
+  @apply bg-emerald-50 border-emerald-200 text-emerald-800;
 }

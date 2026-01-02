@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Clock, Truck, Plus } from 'lucide-react';
+import { api } from '../services/api';
 
 interface ShipmentEvent {
   id: number;
   status: string;
   location: string;
-  timestamp: string;
+  created_at: string;
 }
 
 export default function Tracking() {
@@ -18,27 +19,24 @@ export default function Tracking() {
   // Yeni olay ekleme formu
   const [newEvent, setNewEvent] = useState({ status: "Yolda", location: "" });
 
-  const fetchHistory = () => {
-    fetch(`http://localhost:3000/orders/${id}/tracking`)
-      .then(r => r.json())
-      .then(data => {
-        setEvents(data);
-        setLoading(false);
-      })
-      .catch(err => console.error(err));
+  const fetchHistory = async () => {
+    try {
+      const data = await api.getOrderTracking(Number(id));
+      setEvents(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetchHistory(); }, [id]);
+  useEffect(() => { if (id) fetchHistory(); }, [id]);
 
   const handleAddEvent = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch(`http://localhost:3000/orders/${id}/tracking`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newEvent)
-    });
+    await api.addOrderTracking(Number(id), newEvent);
     setNewEvent({ status: "Yolda", location: "" });
-    fetchHistory(); // Listeyi yenile
+    fetchHistory();
   };
 
   // Tarih formatlayıcı
@@ -53,7 +51,7 @@ export default function Tracking() {
     <div className="space-y-6 max-w-4xl mx-auto p-4">
       {/* BAŞLIK VE GERİ BUTONU */}
       <div className="flex items-center gap-4">
-        <button onClick={() => navigate('/orders')} className="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition">
+        <button onClick={() => navigate('/dashboard/orders')} className="p-2 hover:bg-slate-100 rounded-full text-slate-500 transition">
           <ArrowLeft size={20} />
         </button>
         <div>
@@ -88,7 +86,7 @@ export default function Tracking() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1 text-xs text-slate-400 font-mono mt-1 sm:mt-0">
-                    <Clock size={12} /> {formatDate(event.timestamp)}
+                    <Clock size={12} /> {formatDate(event.created_at)}
                   </div>
                 </div>
               </div>

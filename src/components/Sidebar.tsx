@@ -1,5 +1,19 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Package, ShoppingCart, Settings, X, LogOut } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Building2,
+  Package,
+  ShoppingCart,
+  ClipboardList,
+  Factory,
+  ShoppingBag,
+  Settings,
+  Globe,
+  X,
+  LogOut,
+} from 'lucide-react';
+import { authStore } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 interface SidebarProps {
   isMobileMenuOpen: boolean;
@@ -8,14 +22,13 @@ interface SidebarProps {
 
 export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen }: SidebarProps) {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const role = user?.role;
 
   // --- LOGOUT LOGIC ---
-  const handleLogout = () => {
-    // Kullanıcıya onay soruyoruz
+  const handleLogout = async () => {
     if (confirm("Are you sure you want to sign out?")) {
-      // Kimlik doğrulama anahtarını siliyoruz
-      localStorage.removeItem('isAuthenticated');
-      // Kullanıcıyı giriş ekranına yönlendiriyoruz
+      await authStore.logout();
       navigate('/login');
     }
   };
@@ -61,24 +74,59 @@ export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen }: Sideb
 
         {/* NAVIGATION LINKS */}
         <nav className="flex-1 p-4 space-y-1">
-          <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 mt-4">
-            Operations
-          </p>
-          
-          <NavLink to="/inventory" className={linkClass} onClick={() => setIsMobileMenuOpen(false)}>
+          <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 mt-4">Dashboards</p>
+          {(role === 'SUPERADMIN' || role === 'TENANT' || role === 'WM' || role === 'WO' || role === 'MERCHANT') && (
+            <>
+              {(role === 'SUPERADMIN') && (
+                <>
+                  <NavLink to="/dashboard/admin/overview" className={linkClass} onClick={() => setIsMobileMenuOpen(false)}>
+                    <LayoutDashboard size={18} /> Platform
+                  </NavLink>
+                  <NavLink to="/dashboard/admin/warehouses" className={linkClass} onClick={() => setIsMobileMenuOpen(false)}>
+                    <Factory size={18} /> Warehouses
+                  </NavLink>
+                  <NavLink to="/dashboard/admin/website" className={linkClass} onClick={() => setIsMobileMenuOpen(false)}>
+                    <Globe size={18} /> Website
+                  </NavLink>
+                </>
+              )}
+              {(role === 'TENANT') && (
+                <NavLink to="/dashboard/ta/overview" className={linkClass} onClick={() => setIsMobileMenuOpen(false)}>
+                  <Building2 size={18} /> Tenant
+                </NavLink>
+              )}
+              {(role === 'WM' || role === 'WO') && (
+                <NavLink to="/dashboard/wm/overview" className={linkClass} onClick={() => setIsMobileMenuOpen(false)}>
+                  <Factory size={18} /> Warehouse
+                </NavLink>
+              )}
+              {(role === 'MERCHANT') && (
+                <NavLink to="/dashboard/merchant/overview" className={linkClass} onClick={() => setIsMobileMenuOpen(false)}>
+                  <ShoppingBag size={18} /> Merchant
+                </NavLink>
+              )}
+            </>
+          )}
+
+          <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 mt-6">Operations</p>
+          <NavLink to="/dashboard/inventory" className={linkClass} onClick={() => setIsMobileMenuOpen(false)}>
             <Package size={18} /> Inventory
           </NavLink>
-          
-          <NavLink to="/orders" className={linkClass} onClick={() => setIsMobileMenuOpen(false)}>
+          <NavLink to="/dashboard/orders" className={linkClass} onClick={() => setIsMobileMenuOpen(false)}>
             <ShoppingCart size={18} /> Orders
           </NavLink>
+          {(role === 'WM' || role === 'WO' || role === 'SUPERADMIN') && (
+            <NavLink to="/dashboard/wm/tasks" className={linkClass} onClick={() => setIsMobileMenuOpen(false)}>
+              <ClipboardList size={18} /> Tasks
+            </NavLink>
+          )}
         </nav>
 
         {/* FOOTER AREA (Settings & Logout) */}
         <div className="p-4 border-t border-slate-100 space-y-2">
-          <button className="flex items-center gap-3 w-full px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition">
+          <NavLink to="/dashboard/settings" className={linkClass} onClick={() => setIsMobileMenuOpen(false)}>
             <Settings size={18} /> Settings
-          </button>
+          </NavLink>
           
           {/* Sign Out Button - Kırmızı vurgulu */}
           <button 

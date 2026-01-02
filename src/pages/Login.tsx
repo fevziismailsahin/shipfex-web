@@ -1,92 +1,190 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Lock, Mail } from 'lucide-react';
+import type { ApiError } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login, getRedirectPath } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
-    // Mock Authentication Logic
-    // In a real app, this would be an API call to your backend
-    setTimeout(() => {
-      if (email === "demo@shipfex.com" && password === "demo") {
-        // Save token to localStorage (Simulated)
-        localStorage.setItem('isAuthenticated', 'true');
-        navigate('/inventory');
-      } else {
-        alert("Invalid credentials! Try: demo@shipfex.com / demo");
-        setIsLoading(false);
-      }
-    }, 1000);
+    try {
+      const user = await login(email, password);
+      const target = getRedirectPath(user.role);
+      navigate(target, { replace: true });
+    } catch (err) {
+      console.error('❌ Login error:', err);
+      const apiError = err as ApiError;
+      const errorMsg = typeof apiError === 'object' ? (apiError.message || JSON.stringify(err)) : String(err);
+      setError(errorMsg || 'Login failed');
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+    <div style={{ 
+      minHeight: '100vh', 
+      backgroundColor: '#0f172a', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center', 
+      padding: '16px',
+      fontFamily: 'system-ui, -apple-system, sans-serif'
+    }}>
+      <div style={{ 
+        maxWidth: '400px', 
+        width: '100%', 
+        backgroundColor: '#1e293b', 
+        borderRadius: '12px', 
+        padding: '40px',
+        boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
+        border: '1px solid #334155'
+      }}>
         
-        {/* Header Section */}
-        <div className="bg-indigo-600 p-8 text-center">
-          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-white font-bold text-2xl mx-auto backdrop-blur-sm">
+        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+          <div style={{ 
+            width: '50px', 
+            height: '50px', 
+            backgroundColor: '#3b82f6', 
+            borderRadius: '8px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '28px',
+            fontWeight: 'bold',
+            margin: '0 auto 20px'
+          }}>
             S
           </div>
-          <h1 className="mt-4 text-2xl font-bold text-white">Welcome Back</h1>
-          <p className="text-indigo-100 mt-2 text-sm">Sign in to manage your inventory</p>
+          <h1 style={{ color: '#f1f5f9', fontSize: '24px', fontWeight: 'bold', margin: '0 0 8px 0' }}>
+            ShipFex
+          </h1>
+          <p style={{ color: '#94a3b8', fontSize: '14px', margin: 0 }}>
+            Logistics Management System
+          </p>
         </div>
 
-        {/* Form Section */}
-        <div className="p-8">
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Email Address</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                <input 
-                  type="email" 
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" 
-                  placeholder="name@company.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                <input 
-                  type="password" 
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" 
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            <button 
-              type="submit" 
-              disabled={isLoading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-200 disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-              {isLoading ? 'Signing in...' : 'Sign In'}
-              {!isLoading && <ArrowRight size={18} />}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-xs text-slate-400">
-              For demo use: <span className="font-mono text-indigo-500">demo@shipfex.com</span> / <span className="font-mono text-indigo-500">demo</span>
-            </p>
+        {error && (
+          <div style={{ 
+            padding: '12px', 
+            backgroundColor: '#7f1d1d', 
+            border: '1px solid #dc2626',
+            borderRadius: '6px', 
+            color: '#fca5a5', 
+            marginBottom: '20px',
+            fontSize: '14px',
+            wordBreak: 'break-word'
+          }}>
+            ❌ {error}
           </div>
+        )}
+        
+        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div>
+            <label style={{ 
+              display: 'block', 
+              fontSize: '13px', 
+              fontWeight: '600',
+              color: '#cbd5e1', 
+              marginBottom: '6px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              Email
+            </label>
+            <input 
+              type="email" 
+              style={{ 
+                width: '100%', 
+                padding: '10px 12px', 
+                backgroundColor: '#0f172a',
+                border: '1px solid #475569',
+                borderRadius: '6px',
+                fontSize: '14px',
+                color: '#f1f5f9',
+                boxSizing: 'border-box'
+              }}
+              placeholder="admin@shipfex.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div>
+            <label style={{ 
+              display: 'block', 
+              fontSize: '13px', 
+              fontWeight: '600',
+              color: '#cbd5e1', 
+              marginBottom: '6px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              Password
+            </label>
+            <input 
+              type="password" 
+              style={{ 
+                width: '100%', 
+                padding: '10px 12px', 
+                backgroundColor: '#0f172a',
+                border: '1px solid #475569',
+                borderRadius: '6px',
+                fontSize: '14px',
+                color: '#f1f5f9',
+                boxSizing: 'border-box'
+              }}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            disabled={isLoading}
+            style={{ 
+              width: '100%', 
+              backgroundColor: '#3b82f6', 
+              color: 'white', 
+              fontWeight: '600', 
+              padding: '10px',
+              borderRadius: '6px', 
+              border: 'none',
+              cursor: isLoading ? 'not-allowed' : 'pointer', 
+              opacity: isLoading ? 0.6 : 1,
+              fontSize: '14px',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => !isLoading && (e.currentTarget.style.backgroundColor = '#2563eb')}
+            onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#3b82f6')}
+          >
+            {isLoading ? 'Signing in...' : '🔓 Sign In'}
+          </button>
+        </form>
+
+        <div style={{ 
+          marginTop: '24px', 
+          paddingTop: '20px',
+          borderTop: '1px solid #475569',
+          textAlign: 'center', 
+          fontSize: '12px', 
+          color: '#64748b' 
+        }}>
+          📝 Demo Credentials:<br />
+          <strong style={{ color: '#cbd5e1' }}>admin@shipfex.com</strong><br />
+          <strong style={{ color: '#cbd5e1' }}>admin123</strong>
         </div>
       </div>
     </div>
